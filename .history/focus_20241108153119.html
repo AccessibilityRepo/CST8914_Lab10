@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title>Focus</title>
+		<link href="css.css" rel="stylesheet" type="text/css">
+		<script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const menuButton = document.getElementById('menubutton1');
+                const menu = document.getElementById('menu1');
+                const menuItems = menu.querySelectorAll('[role="menuitem"]');
+                let currentFocus = 0; // Tracks the currently focused menu item
+
+                // Initialize tabindex for menu items
+                menuItems.forEach((item, index) => {
+                    item.setAttribute('tabindex', index === currentFocus ? '0' : '-1');
+                });
+
+                // Open menu and set focus on the first item
+                menuButton.addEventListener('click', function () {
+                    menu.style.display = 'block'; // Show the menu
+                    menuItems[currentFocus].focus(); // Focus the first menu item
+                });
+
+                // Close menu when Escape key is pressed
+                menuButton.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        menu.style.display = 'none';
+                        menuButton.focus();
+                    }
+                });
+
+                // Manage focus within the menu using arrow keys
+                menu.addEventListener('keydown', function (event) {
+                    if (event.key === 'ArrowDown') {
+                        event.preventDefault();
+                        moveFocus(1); // Move focus to the next menu item
+                    } else if (event.key === 'ArrowUp') {
+                        event.preventDefault();
+                        moveFocus(-1); // Move focus to the previous menu item
+                    } else if (event.key === 'Enter') {
+                        event.preventDefault();
+                        document.getElementById('action_output').value = menuItems[currentFocus].textContent; // Display selected item
+                        menu.style.display = 'none'; // Close menu after selection
+                    } else if (event.key === 'Escape') {
+                        menu.style.display = 'none'; // Close menu on Escape key
+                        menuButton.focus(); // Return focus to the menu button
+                    }
+                });
+
+                function moveFocus(delta) {
+                    // Update tabindex for the currently focused item
+                    menuItems[currentFocus].setAttribute('tabindex', '-1'); // Make the current item unfocusable
+
+                    // Calculate the new focus index (with wrapping)
+                    currentFocus = (currentFocus + delta + menuItems.length) % menuItems.length;
+
+                    // Update tabindex for the new focused item
+                    menuItems[currentFocus].setAttribute('tabindex', '0'); // Make the new item focusable
+                    menuItems[currentFocus].focus(); // Programmatically apply focus
+                }
+            });
+        </script>
+	</head>
+	<body>
+		<main>
+            <h1>Managing Keyboard Focus</h1>
+            <p>Instructions: Use 'up & down arrow keys' to navigate between menu items (need fix!), 'enter' to activate menu item, 'escape' key to close menu.</p>
+            <h2>What to do:</h2>
+            <p>Apply roving index technique to programmatically manage the keyboard focus on the menu (on keys arrow up and down).</p>
+            <div class="menu-button-actions">
+                <p>
+                    <label>Pizza Choice:<br> <input class="action" id="action_output" type="text" value=""></label>
+                </p>
+                <button type="button" id="menubutton1" aria-haspopup="true" aria-controls="menu1">
+                  Pizza Menu
+                  <svg xmlns="http://www.w3.org/2000/svg" class="down" width="12" height="9" viewBox="0 0 12 9">
+                    <polygon points="1 0, 11 0, 6 8"></polygon>
+                  </svg>
+                </button>
+                
+                <ul id="menu1" role="menu" aria-labelledby="menubutton1" style="display: none;">
+                  <li role="menuitem">Pizza 1</li>
+                  <li role="menuitem">Pizza 2</li>
+                  <li role="menuitem">Pizza 3</li>
+                  <li role="menuitem">Pizza 4</li>
+                </ul>
+            </div>
+		</main>
+	</body>
+</html>
